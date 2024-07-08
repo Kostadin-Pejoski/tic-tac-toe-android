@@ -5,4 +5,52 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"/>
+    tools:context=".MainActivity">
+
+    <FrameLayout
+        android:layout_width="409dp"
+        android:layout_height="373dp"
+        android:layout_marginTop="120dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="116dp"
+            android:layout_marginTop="80dp"
+            android:text="Tic Tac Toe"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="#9C27B0" />
+
+        <Button
+            android:id="@+id/startOnePlayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="160dp"
+            android:layout_marginTop="172dp"
+            android:onClick="startGame"
+            android:text="1 Player" />
+
+        <Button
+            android:id="@+id/startTwoPlayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="160dp"
+            android:layout_marginTop="236dp"
+            android:onClick="startGame"
+            android:text="2 Players" />
+
+        <Button
+            android:id="@+id/historyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="128dp"
+            android:layout_marginTop="300dp"
+            android:onClick="showHistory"
+            android:text="show played games" />
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
