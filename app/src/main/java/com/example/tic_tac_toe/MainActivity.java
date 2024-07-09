@@ -1,5 +1,6 @@
 package com.example.tic_tac_toe;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+class Test{}
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this,"1 player",Toast.LENGTH_SHORT).show();
         }
         else{
-            Toast.makeText(this,"2 player",Toast.LENGTH_SHORT).show();
+            Intent i = new Intent(this, InsertPlayerNamesActivity.class);
+            startActivity(i);
         }
     }
 
