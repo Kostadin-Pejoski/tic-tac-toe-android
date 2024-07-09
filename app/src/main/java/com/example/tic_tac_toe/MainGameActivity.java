@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class MainGameActivity extends AppCompatActivity {
 
@@ -24,16 +26,13 @@ public class MainGameActivity extends AppCompatActivity {
     private String player1Name,player2Name;
     private TextView displayPlayer1,displayName2;
     private HashMap<Integer,Integer> realIdToBoardIdMap = new HashMap<>();
+    private int noMoves=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        for (int i=0;i<3;i++){
-            for (int j=0;j<3;j++){
-                board[i][j]= "";
-            }
-        }
+        resetBoardWithoutView();
         setContentView(R.layout.activity_main_game);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -52,7 +51,7 @@ public class MainGameActivity extends AppCompatActivity {
         displayName2=findViewById(R.id.buttonsAndMisc).findViewById(R.id.playerDisplay2);
         displayPlayer1.setText(player1Name);
         displayName2.setText(player2Name);
-        Log.d("idbtntest",String.valueOf(R.id.btn0));
+        realIdToBoardIdMap.put(R.id.btn0,0);
         realIdToBoardIdMap.put(R.id.btn1,1);
         realIdToBoardIdMap.put(R.id.btn2,2);
         realIdToBoardIdMap.put(R.id.btn3,3);
@@ -81,11 +80,15 @@ public class MainGameActivity extends AppCompatActivity {
         Button viewAsBtn = (Button)v;
         viewAsBtn.setText(currentTurn);
         int realId = realIdToBoardIdMap.get(v.getId());
-        for(int i=0;i<9;i++){
-            if (realId==i){
-
-                break;
-            }
+        if (realId<3){
+            board[0][realId%3]=currentTurn;
+        }
+        else if (realId<6){
+            Log.d("realId",String.valueOf(realId));
+            board[1][realId%3]=currentTurn;
+        }
+        else{
+            board[2][realId%3]=currentTurn;
         }
         if (currentTurn.equals("x")){
             currentTurn="o";
@@ -93,6 +96,103 @@ public class MainGameActivity extends AppCompatActivity {
         else{
             currentTurn="x";
         }
+        if (checkWin("x") || checkWin("o")){
+            stopGame("win");
+        }
+        else if (!checkWin("x") && !checkWin("o") && noMoves==9){
+            stopGame("draw");
+        }
+    }
 
+    private void stopGame(String stopCondition) {
+        realIdToBoardIdMap.keySet().forEach(realId->{
+            Button b=findViewById(realId);
+            b.setEnabled(false);
+        });
+        Button gotoMainBtn = findViewById(R.id.buttonsAndMisc).findViewById(R.id.gotoMainBtn);
+        Button restartGameBtn = findViewById(R.id.buttonsAndMisc).findViewById(R.id.restartBoardBtn);
+        gotoMainBtn.setVisibility(View.VISIBLE);
+        restartGameBtn.setVisibility(View.VISIBLE);
+        if (stopCondition.equals("draw")){
+            Toast.makeText(this, "its a draw", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            String winingPlayer;
+            if (checkWin("x")){
+                winingPlayer=player1Name;
+            }
+            else{
+                winingPlayer=player2Name;
+            }
+            Toast.makeText(this,winingPlayer+" won",Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+
+    private boolean checkWin(String player) {
+//        check column
+        for (int i=0;i<3;i++){
+            boolean flag=true;
+            for(int j=0;j<3;j++){
+                if (board[i][j].equals(player)){
+                    continue;
+                }
+                else{
+                    flag=false;
+                    break;
+                }
+            }
+            if (flag){
+                return true;
+            }
+        }
+        for (int i=0;i<3;i++){
+            boolean flag=true;
+            for(int j=0;j<3;j++){
+                if (board[j][i].equals(player)){
+                    continue;
+                }
+                else{
+                    flag=false;
+                    break;
+                }
+            }
+            if (flag){
+                return true;
+            }
+        }
+//        check diagonals
+        if (board[0][0].equals(board[1][1]) && board[0][0].equals(board[2][2]) && !board[0][0].isEmpty()){
+            return true;
+        }
+        else if (board[0][2].equals(board[1][1]) && board[0][2].equals(board[2][0]) && !board[0][2].isEmpty()){
+            return true;
+        }
+        return false;
+    }
+
+    private void resetBoardWithoutView(){
+        currentTurn="x";
+        for (int i=0;i<3;i++){
+            for (int j=0;j<3;j++){
+                board[i][j]= "";
+            }
+        }
+        noMoves=0;
+        realIdToBoardIdMap.keySet().stream().map(id->(Button)findViewById(R.id.box).findViewById(id)).forEach(button -> {
+            button.setText("");
+            button.setEnabled(true);
+        });
+    }
+
+    public void restartBoardFunc(View v){
+        resetBoardWithoutView();
+    }
+
+    public void gotoMain(View v){
+        Intent i = new Intent(this, MainActivity.class);
+        resetBoardWithoutView();
+        startActivity(i);
     }
 }
