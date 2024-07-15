@@ -27,7 +27,7 @@ public class MainGameActivity extends AppCompatActivity {
     private TextView displayPlayer1,displayName2;
     private HashMap<Integer,Integer> realIdToBoardIdMap = new HashMap<>();
     private int noMoves=0;
-
+    private Button gotoMainBtn,restartGameBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +49,8 @@ public class MainGameActivity extends AppCompatActivity {
         }
         displayPlayer1=findViewById(R.id.buttonsAndMisc).findViewById(R.id.playerDisplay1);
         displayName2=findViewById(R.id.buttonsAndMisc).findViewById(R.id.playerDisplay2);
+        gotoMainBtn = findViewById(R.id.buttonsAndMisc).findViewById(R.id.gotoMainBtn);
+        restartGameBtn = findViewById(R.id.buttonsAndMisc).findViewById(R.id.restartBoardBtn);
         displayPlayer1.setText(player1Name);
         displayName2.setText(player2Name);
         realIdToBoardIdMap.put(R.id.btn0,0);
@@ -65,19 +67,9 @@ public class MainGameActivity extends AppCompatActivity {
 
     }
 
-    private String getBoardAsString(){
-        String res="";
-        for (int i=0;i<3;i++){
-            for (int j=0;j<3;j++){
-                res+=board[i][j]+",";
-            }
-            res+="\n";
-        }
-        return res;
-    }
-
     public void boxClick(View v){
         Button viewAsBtn = (Button)v;
+        if (!viewAsBtn.getText().equals("")) return;
         viewAsBtn.setText(currentTurn);
         int realId = realIdToBoardIdMap.get(v.getId());
         if (realId<3){
@@ -96,6 +88,7 @@ public class MainGameActivity extends AppCompatActivity {
         else{
             currentTurn="x";
         }
+        noMoves++;
         if (checkWin("x") || checkWin("o")){
             stopGame("win");
         }
@@ -109,8 +102,8 @@ public class MainGameActivity extends AppCompatActivity {
             Button b=findViewById(realId);
             b.setEnabled(false);
         });
-        Button gotoMainBtn = findViewById(R.id.buttonsAndMisc).findViewById(R.id.gotoMainBtn);
-        Button restartGameBtn = findViewById(R.id.buttonsAndMisc).findViewById(R.id.restartBoardBtn);
+
+
         gotoMainBtn.setVisibility(View.VISIBLE);
         restartGameBtn.setVisibility(View.VISIBLE);
         if (stopCondition.equals("draw")){
@@ -187,6 +180,8 @@ public class MainGameActivity extends AppCompatActivity {
     }
 
     public void restartBoardFunc(View v){
+        restartGameBtn.setVisibility(View.INVISIBLE);
+        gotoMainBtn.setVisibility(View.INVISIBLE);
         resetBoardWithoutView();
     }
 
