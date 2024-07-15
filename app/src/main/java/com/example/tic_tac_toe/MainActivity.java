@@ -1,7 +1,10 @@
 package com.example.tic_tac_toe;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,8 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-class Test{}
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showHistory(View v){
-        Toast.makeText(this,"history",Toast.LENGTH_SHORT).show();
+        Intent i = new Intent(this,HistoryActivity.class);
+        startActivity(i);
     }
 
 }

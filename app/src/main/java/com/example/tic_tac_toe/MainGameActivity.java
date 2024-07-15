@@ -1,6 +1,8 @@
 package com.example.tic_tac_toe;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,14 +12,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class MainGameActivity extends AppCompatActivity {
 
@@ -28,6 +34,7 @@ public class MainGameActivity extends AppCompatActivity {
     private HashMap<Integer,Integer> realIdToBoardIdMap = new HashMap<>();
     private int noMoves=0;
     private Button gotoMainBtn,restartGameBtn;
+    private Game currentGame;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +54,7 @@ public class MainGameActivity extends AppCompatActivity {
         else{
             player2Name="Computer";
         }
+        currentGame=new Game(player1Name,player2Name);
         displayPlayer1=findViewById(R.id.buttonsAndMisc).findViewById(R.id.playerDisplay1);
         displayName2=findViewById(R.id.buttonsAndMisc).findViewById(R.id.playerDisplay2);
         gotoMainBtn = findViewById(R.id.buttonsAndMisc).findViewById(R.id.gotoMainBtn);
@@ -108,6 +116,7 @@ public class MainGameActivity extends AppCompatActivity {
         restartGameBtn.setVisibility(View.VISIBLE);
         if (stopCondition.equals("draw")){
             Toast.makeText(this, "its a draw", Toast.LENGTH_SHORT).show();
+            currentGame.setStatus("draw");
         }
         else{
             String winingPlayer;
@@ -118,8 +127,10 @@ public class MainGameActivity extends AppCompatActivity {
                 winingPlayer=player2Name;
             }
             Toast.makeText(this,winingPlayer+" won",Toast.LENGTH_LONG).show();
+            currentGame.setStatus("winner:"+winingPlayer);
         }
 
+        saveGame();
 
     }
 
@@ -189,5 +200,18 @@ public class MainGameActivity extends AppCompatActivity {
         Intent i = new Intent(this, MainActivity.class);
         resetBoardWithoutView();
         startActivity(i);
+    }
+    private void saveGame() {
+        String gameJson = Game.gameToJson(currentGame);
+        if (gameJson == null) {
+            return;
+        }
+        SharedPreferences sharedPreferences = getSharedPreferences("GameHistory", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        long uniqueKey = System.currentTimeMillis(); // Using current time as unique key
+        editor.putString("game_" + uniqueKey, gameJson);
+        editor.apply();
+        Toast.makeText(this, "Sucessfull save of game", Toast.LENGTH_SHORT).show();
     }
 }
