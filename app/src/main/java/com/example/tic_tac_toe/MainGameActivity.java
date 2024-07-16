@@ -35,6 +35,7 @@ public class MainGameActivity extends AppCompatActivity {
     private int noMoves=0;
     private Button gotoMainBtn,restartGameBtn;
     private Game currentGame;
+    private int noPlayers;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,12 +49,8 @@ public class MainGameActivity extends AppCompatActivity {
         });
         Intent i = getIntent();
         player1Name=i.getStringExtra("player1Name");
-        if(i.getStringExtra("player2Name")!=null){
-            player2Name= i.getStringExtra("player2Name");
-        }
-        else{
-            player2Name="Computer";
-        }
+        player2Name=i.getStringExtra("player2Name");
+        noPlayers=Integer.parseInt(Objects.requireNonNull(i.getStringExtra("noPlayers")));
         currentGame=new Game(player1Name,player2Name);
         displayPlayer1=findViewById(R.id.buttonsAndMisc).findViewById(R.id.playerDisplay1);
         displayName2=findViewById(R.id.buttonsAndMisc).findViewById(R.id.playerDisplay2);
@@ -74,9 +71,11 @@ public class MainGameActivity extends AppCompatActivity {
 
 
     }
-
     public void boxClick(View v){
+
+
         Button viewAsBtn = (Button)v;
+
         if (!viewAsBtn.getText().equals("")) return;
         viewAsBtn.setText(currentTurn);
         int realId = realIdToBoardIdMap.get(v.getId());
@@ -84,7 +83,6 @@ public class MainGameActivity extends AppCompatActivity {
             board[0][realId%3]=currentTurn;
         }
         else if (realId<6){
-            Log.d("realId",String.valueOf(realId));
             board[1][realId%3]=currentTurn;
         }
         else{
@@ -92,6 +90,9 @@ public class MainGameActivity extends AppCompatActivity {
         }
         if (currentTurn.equals("x")){
             currentTurn="o";
+            if (noPlayers==1){
+                makeBestMove();
+            }
         }
         else{
             currentTurn="x";
@@ -188,6 +189,7 @@ public class MainGameActivity extends AppCompatActivity {
             button.setText("");
             button.setEnabled(true);
         });
+
     }
 
     public void restartBoardFunc(View v){
@@ -213,5 +215,131 @@ public class MainGameActivity extends AppCompatActivity {
         editor.putString("game_" + uniqueKey, gameJson);
         editor.apply();
         Toast.makeText(this, "Sucessfull save of game", Toast.LENGTH_SHORT).show();
+    }
+
+
+    public void makeBestMove() {
+        Move bestMove = findBestMove();
+        int realId;
+        if (bestMove.row==0){
+            realId=bestMove.col;
+        }
+        else if (bestMove.row==1){
+            realId= bestMove.col%3+3;
+        }
+        else{
+            realId=bestMove.col%3+6;
+        }
+        Log.d("realid",String.valueOf(realId));
+        for (Map.Entry<Integer,Integer> entry:realIdToBoardIdMap.entrySet()){
+            if (entry.getValue()==realId){
+                boxClick(findViewById(entry.getKey()));
+                break;
+            }
+        }
+//        board[bestMove.row][bestMove.col] = "o";
+    }
+
+    private Move findBestMove() {
+        int bestVal = Integer.MIN_VALUE;
+        Move bestMove = new Move(-1, -1);
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j].equals("")) {
+                    board[i][j] = "O"; // Try this move for the AI
+                    int moveVal = minimax(board, false); // Compute evaluation function for this move
+                    board[i][j] = ""; // Undo the move
+
+                    if (moveVal > bestVal) {
+                        bestMove.row = i;
+                        bestMove.col = j;
+                        bestVal = moveVal;
+                    }
+                }
+            }
+        }
+        return bestMove;
+    }
+
+    private int minimax(String[][] board, boolean isMaximizing) {
+        if (checkWin("o")) {
+            return 10; // If AI wins
+        } else if (checkWin( "x")) {
+            return -10; // If player wins
+        } else if (!isMovesLeft(board)) {
+            return 0; // Draw
+        }
+
+        if (isMaximizing) {
+            int best = Integer.MIN_VALUE;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board[i][j].equals("")) {
+                        board[i][j] = "o";
+                        best = Math.max(best, minimax(board, false));
+                        board[i][j] = "";
+                    }
+                }
+            }
+            return best;
+        } else {
+            int best = Integer.MAX_VALUE;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (board[i][j].equals("")) {
+                        board[i][j] = "x";
+                        best = Math.min(best, minimax(board, true));
+                        board[i][j] = "";
+                    }
+                }
+            }
+            return best;
+        }
+    }
+
+    private int evaluate(String[][] board, String player, String opponent) {
+        for (int row = 0; row < 3; row++) {
+            if (board[row][0].equals(board[row][1]) && board[row][1].equals(board[row][2])) {
+                if (board[row][0].equals(player)) return 10;
+                if (board[row][0].equals(opponent)) return -10;
+            }
+        }
+
+        for (int col = 0; col < 3; col++) {
+            if (board[0][col].equals(board[1][col]) && board[1][col].equals(board[2][col])) {
+                if (board[0][col].equals(player)) return 10;
+                if (board[0][col].equals(opponent)) return -10;
+            }
+        }
+
+        if (board[0][0].equals(board[1][1]) && board[1][1].equals(board[2][2])) {
+            if (board[0][0].equals(player)) return 10;
+            if (board[0][0].equals(opponent)) return -10;
+        }
+
+        if (board[0][2].equals(board[1][1]) && board[1][1].equals(board[2][0])) {
+            if (board[0][2].equals(player)) return 10;
+            if (board[0][2].equals(opponent)) return -10;
+        }
+
+        return 0;
+    }
+
+    private boolean isMovesLeft(String[][] board) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j].equals("")) return true;
+            }
+        }
+        return false;
+    }
+
+    private class Move {
+        int row, col;
+        Move(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
     }
 }

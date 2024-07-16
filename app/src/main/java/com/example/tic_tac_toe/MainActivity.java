@@ -36,13 +36,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startGame(View v){
+        Intent i = new Intent(this, InsertPlayerNamesActivity.class);
         if(v.getId()==onePlayerBtn.getId()){
-            Toast.makeText(this,"1 player",Toast.LENGTH_SHORT).show();
+            i.putExtra("noPlayers","1");
+
         }
         else{
-            Intent i = new Intent(this, InsertPlayerNamesActivity.class);
-            startActivity(i);
+            i.putExtra("noPlayers","2");
         }
+            startActivity(i);
     }
 
     public void showHistory(View v){

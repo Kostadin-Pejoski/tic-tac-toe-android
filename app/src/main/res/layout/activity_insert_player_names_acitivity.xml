@@ -55,7 +55,7 @@
             app:layout_constraintTop_toBottomOf="@+id/player2Input" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/player1Label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="first player"
@@ -63,7 +63,7 @@
             tools:layout_editor_absoluteX="80dp" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/player2Label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="second player"
